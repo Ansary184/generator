@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مولد التراخيص الشامل | ERPX Admin</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; }
+        /* Custom Checkbox Style */
+        .checkbox-card input:checked + div {
+            background-color: #7c3aed; 
+            border-color: #7c3aed;
+            color: white;
+        }
+        .checkbox-card input:checked + div .icon-box {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+        }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen p-4 flex items-center justify-center">
+
+    <div class="w-full max-w-2xl bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-6 md:p-8">
+        
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400 mb-2">
+                مولد التراخيص 🔐
+            </h1>
+            <p class="text-gray-400 text-sm">لوحة التحكم الكاملة في صلاحيات العميل</p>
+        </div>
+
+        <form id="genForm" onsubmit="generateKey(event)" class="space-y-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-2">كود جهاز العميل (Machine ID)</label>
+                    <input type="text" id="machineId" required class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition font-mono text-center text-green-400" placeholder="لصق الكود هنا...">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-2">مدة الترخيص</label>
+                    <select id="duration" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm outline-none text-white appearance-none cursor-pointer">
+                        <option value="30">تجريبي (شهر واحد)</option>
+                        <option value="90">3 شهور (ربع سنوي)</option>
+                        <option value="180">6 شهور (نصف سنوي)</option>
+                        <option value="365" selected>سنة كاملة (Standard)</option>
+                        <option value="730">سنتين</option>
+                        <option value="36500">نسخة دائمة (Lifetime)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-700 my-4"></div>
+
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <label class="text-sm font-bold text-gray-300">حدد التطبيقات المتاحة للعميل:</label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-gray-700 px-3 py-1 rounded-lg hover:bg-gray-600 transition">
+                        <input type="checkbox" id="mod_all" onchange="toggleAll(this)" class="w-4 h-4 rounded text-purple-600 focus:ring-purple-500 bg-gray-800 border-gray-600">
+                        <span class="text-xs font-bold text-white">تحديد الكل</span>
+                    </label>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    
+                    <label class="checkbox-card cursor-pointer group">
+                        <input type="checkbox" value="sales" class="hidden mod-item">
+                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
+                            <span class="icon-box w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg">💰</span>
+                            <span class="text-[10px] font-bold">المبيعات والعملاء</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-card cursor-pointer group">
+                        <input type="checkbox" value="pos" class="hidden mod-item">
+                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
+                            <span class="icon-box w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">🏪</span>
+                            <span class="text-[10px] font-bold">نقاط البيع (POS)</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-card cursor-pointer group">
+                        <input type="checkbox" value="inventory" class="hidden mod-item">
+                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
+                            <span class="icon-box w-8 h-8 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center text-lg">📦</span>
+                            <span class="text-[10px] font-bold">المخازن والموردين</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-card cursor-pointer group">
+                        <input type="checkbox" value="accounting" class="hidden mod-item">
+                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
+                            <span class="icon-box w-8 h-8 rounded-lg bg-green-500/10 text-green-400 flex items-center justify-center text-lg">📊</span>
+                            <span class="text-[10px] font-bold">الحسابات العامة</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-card cursor-pointer group">
+                        <input type="checkbox" value="hr" class="hidden mod-item">
+                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
+                            <span class="icon-box w-8 h-8 rounded-lg bg-pink-500/10 text-pink-400 flex items-center justify-center text-lg">👥</span>
+                            <span class="text-[10px] font-bold">الموظفين (HR)</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-card cursor-pointer group">
+                        <input type="checkbox" value="manufacturing" class="hidden mod-item">
+                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
+                            <span class="icon-box w-8 h-8 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center text-lg">🏭</span>
+                            <span class="text-[10px] font-bold">التصنيع</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-card cursor-pointer group">
+                        <input type="checkbox" value="maintenance" class="hidden mod-item">
+                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
+                            <span class="icon-box w-8 h-8 rounded-lg bg-yellow-500/10 text-yellow-400 flex items-center justify-center text-lg">🔧</span>
+                            <span class="text-[10px] font-bold">الصيانة</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-card cursor-pointer group">
+                        <input type="checkbox" value="serials" class="hidden mod-item">
+                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
+                            <span class="icon-box w-8 h-8 rounded-lg bg-gray-500/10 text-gray-400 flex items-center justify-center text-lg">🔢</span>
+                            <span class="text-[10px] font-bold">تتبع السيريالات</span>
+                        </div>
+                    </label>
+
+                    <label class="checkbox-card cursor-pointer group">
+                        <input type="checkbox" value="backup" class="hidden mod-item">
+                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
+                            <span class="icon-box w-8 h-8 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center text-lg">💾</span>
+                            <span class="text-[10px] font-bold">النسخ الاحتياطي</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-900/50 transition transform active:scale-95 text-lg">
+                إنشاء كود التفعيل 🚀
+            </button>
+        </form>
+
+        <div id="resultArea" class="hidden mt-8 pt-6 border-t border-gray-700 animate-fade-in bg-black/30 p-4 rounded-xl">
+            <div class="flex justify-between items-center mb-2">
+                <p class="text-xs text-green-400 font-bold">✅ تم إنشاء المفتاح بنجاح</p>
+                <button onclick="copyToken()" class="bg-gray-700 hover:bg-gray-600 text-white text-[10px] px-3 py-1 rounded transition flex items-center gap-1">
+                    <span>نسخ</span>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                </button>
+            </div>
+            <textarea id="finalToken" readonly rows="3" class="w-full bg-black/50 border border-green-500/30 rounded-lg p-3 text-[10px] text-gray-300 font-mono break-all resize-none focus:outline-none"></textarea>
+        </div>
+
+    </div>
+
+    <script>
+        // ⚠️ هذا المفتاح يجب أن يكون مطابقاً تماماً للموجود في server.js عند العميل
+        const SECRET_KEY = "ANSARY_SUPER_SECURE_ERPX_KEY_2026_!@#"; 
+
+        function toggleAll(source) {
+            const checkboxes = document.querySelectorAll('.mod-item');
+            checkboxes.forEach(cb => {
+                cb.checked = source.checked;
+            });
+        }
+
+        function generateKey(e) {
+            e.preventDefault();
+            
+            const machineId = document.getElementById('machineId').value.trim();
+            if(!machineId) return alert('يرجى إدخال كود الجهاز!');
+
+            // 1. تجميع المديولات المختارة
+            let modules = [];
+            const checkboxes = document.querySelectorAll('.mod-item:checked');
+            checkboxes.forEach(cb => {
+                modules.push(cb.value);
+            });
+
+            // لو اختار كل البوكسات، ممكن نحط 'all' للاختصار، أو نسيبهم مفصلين (الأفضل مفصلين عشان لو حبيت تشيل حاجة مستقبلاً)
+            if(checkboxes.length === document.querySelectorAll('.mod-item').length) {
+                // modules = ['all']; // يمكنك تفعيل هذا السطر لو عايز الكود يبقى أقصر، بس التفصيل أأمن
+            }
+
+            if(modules.length === 0 && !document.getElementById('mod_all').checked) {
+                return alert('⚠️ يجب اختيار تطبيق واحد على الأقل!');
+            }
+
+            // 2. التاريخ
+            const days = parseInt(document.getElementById('duration').value);
+            const now = Math.floor(Date.now() / 1000);
+            const expiry = now + (days * 24 * 60 * 60);
+
+            // 3. البيانات
+            const payload = {
+                machineId: machineId,
+                modules: modules, // القائمة التي اخترتها
+                type: 'pro',
+                iat: now,
+                exp: expiry
+            };
+
+            // 4. التشفير
+            const token = signJWT(payload, SECRET_KEY);
+
+            // 5. العرض
+            document.getElementById('resultArea').classList.remove('hidden');
+            document.getElementById('finalToken').value = token;
+            
+            // Auto scroll to result
+            document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // دوال التشفير المساعدة (Standard JWT Signing)
+        function signJWT(payload, secret) {
+            const header = { alg: "HS256", typ: "JWT" };
+            const stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header));
+            const encodedHeader = base64url(stringifiedHeader);
+            const stringifiedPayload = CryptoJS.enc.Utf8.parse(JSON.stringify(payload));
+            const encodedPayload = base64url(stringifiedPayload);
+            const signature = CryptoJS.HmacSHA256(encodedHeader + "." + encodedPayload, secret);
+            const encodedSignature = base64url(signature);
+            return `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
+        }
+
+        function base64url(source) {
+            let encodedSource = CryptoJS.enc.Base64.stringify(source);
+            encodedSource = encodedSource.replace(/=+$/, '');
+            encodedSource = encodedSource.replace(/\+/g, '-');
+            encodedSource = encodedSource.replace(/\//g, '_');
+            return encodedSource;
+        }
+
+        function copyToken() {
+            const copyText = document.getElementById("finalToken");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
+            navigator.clipboard.writeText(copyText.value);
+            alert("تم نسخ الكود! أرسله للعميل.");
+        }
+    </script>
+</body>
+</html>
