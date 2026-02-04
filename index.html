@@ -3,162 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مولد التراخيص الشامل | ERPX Admin</title>
+    <title>مولد التراخيص | لوحة الإدارة</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; }
-        /* Custom Checkbox Style */
-        .checkbox-card input:checked + div {
-            background-color: #7c3aed; 
-            border-color: #7c3aed;
-            color: white;
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6750A4',
+                        secondary: '#033363',
+                        surface: '#F3EDF7',
+                        background: '#FEF7FF'
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
         }
-        .checkbox-card input:checked + div .icon-box {
-            background-color: rgba(255,255,255,0.2);
-            color: white;
+    </script>
+    <style>
+        body { background-color: #FEF7FF; }
+        
+        /* تأثير البطاقات عند الاختيار */
+        .module-checkbox:checked + div {
+            background-color: #F3EDF7;
+            border-color: #6750A4;
+            color: #21005D;
+        }
+        .module-checkbox:checked + div .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .module-checkbox:checked + div .icon-bg {
+            background-color: #EADDFF;
+            color: #21005D;
         }
     </style>
 </head>
-<body class="text-gray-100 min-h-screen p-4 flex items-center justify-center">
+<body class="min-h-screen py-8 px-4 flex items-center justify-center bg-gradient-to-br from-[#FEF7FF] to-[#E6E0E9]">
 
-    <div class="w-full max-w-2xl bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-6 md:p-8">
+    <div class="w-full max-w-3xl bg-white rounded-[32px] shadow-xl border border-white/50 overflow-hidden">
         
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400 mb-2">
-                مولد التراخيص 🔐
-            </h1>
-            <p class="text-gray-400 text-sm">لوحة التحكم الكاملة في صلاحيات العميل</p>
-        </div>
-
-        <form id="genForm" onsubmit="generateKey(event)" class="space-y-8">
+        <div class="bg-primary/5 p-8 border-b border-gray-100 text-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-10 -mt-10 blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full -ml-10 -mb-10 blur-3xl"></div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 mb-2">كود جهاز العميل (Machine ID)</label>
-                    <input type="text" id="machineId" required class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition font-mono text-center text-green-400" placeholder="لصق الكود هنا...">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 mb-2">مدة الترخيص</label>
-                    <select id="duration" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm outline-none text-white appearance-none cursor-pointer">
-                        <option value="30">تجريبي (شهر واحد)</option>
-                        <option value="90">3 شهور (ربع سنوي)</option>
-                        <option value="180">6 شهور (نصف سنوي)</option>
-                        <option value="365" selected>سنة كاملة (Standard)</option>
-                        <option value="730">سنتين</option>
-                        <option value="36500">نسخة دائمة (Lifetime)</option>
-                    </select>
-                </div>
+            <div class="w-16 h-16 bg-white text-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm text-2xl">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
             </div>
-
-            <div class="border-t border-gray-700 my-4"></div>
-
-            <div>
-                <div class="flex justify-between items-center mb-4">
-                    <label class="text-sm font-bold text-gray-300">حدد التطبيقات المتاحة للعميل:</label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-gray-700 px-3 py-1 rounded-lg hover:bg-gray-600 transition">
-                        <input type="checkbox" id="mod_all" onchange="toggleAll(this)" class="w-4 h-4 rounded text-purple-600 focus:ring-purple-500 bg-gray-800 border-gray-600">
-                        <span class="text-xs font-bold text-white">تحديد الكل</span>
-                    </label>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                    
-                    <label class="checkbox-card cursor-pointer group">
-                        <input type="checkbox" value="sales" class="hidden mod-item">
-                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
-                            <span class="icon-box w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg">💰</span>
-                            <span class="text-[10px] font-bold">المبيعات والعملاء</span>
-                        </div>
-                    </label>
-
-                    <label class="checkbox-card cursor-pointer group">
-                        <input type="checkbox" value="pos" class="hidden mod-item">
-                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
-                            <span class="icon-box w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">🏪</span>
-                            <span class="text-[10px] font-bold">نقاط البيع (POS)</span>
-                        </div>
-                    </label>
-
-                    <label class="checkbox-card cursor-pointer group">
-                        <input type="checkbox" value="inventory" class="hidden mod-item">
-                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
-                            <span class="icon-box w-8 h-8 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center text-lg">📦</span>
-                            <span class="text-[10px] font-bold">المخازن والموردين</span>
-                        </div>
-                    </label>
-
-                    <label class="checkbox-card cursor-pointer group">
-                        <input type="checkbox" value="accounting" class="hidden mod-item">
-                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
-                            <span class="icon-box w-8 h-8 rounded-lg bg-green-500/10 text-green-400 flex items-center justify-center text-lg">📊</span>
-                            <span class="text-[10px] font-bold">الحسابات العامة</span>
-                        </div>
-                    </label>
-
-                    <label class="checkbox-card cursor-pointer group">
-                        <input type="checkbox" value="hr" class="hidden mod-item">
-                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
-                            <span class="icon-box w-8 h-8 rounded-lg bg-pink-500/10 text-pink-400 flex items-center justify-center text-lg">👥</span>
-                            <span class="text-[10px] font-bold">الموظفين (HR)</span>
-                        </div>
-                    </label>
-
-                    <label class="checkbox-card cursor-pointer group">
-                        <input type="checkbox" value="manufacturing" class="hidden mod-item">
-                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
-                            <span class="icon-box w-8 h-8 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center text-lg">🏭</span>
-                            <span class="text-[10px] font-bold">التصنيع</span>
-                        </div>
-                    </label>
-
-                    <label class="checkbox-card cursor-pointer group">
-                        <input type="checkbox" value="maintenance" class="hidden mod-item">
-                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
-                            <span class="icon-box w-8 h-8 rounded-lg bg-yellow-500/10 text-yellow-400 flex items-center justify-center text-lg">🔧</span>
-                            <span class="text-[10px] font-bold">الصيانة</span>
-                        </div>
-                    </label>
-
-                    <label class="checkbox-card cursor-pointer group">
-                        <input type="checkbox" value="serials" class="hidden mod-item">
-                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
-                            <span class="icon-box w-8 h-8 rounded-lg bg-gray-500/10 text-gray-400 flex items-center justify-center text-lg">🔢</span>
-                            <span class="text-[10px] font-bold">تتبع السيريالات</span>
-                        </div>
-                    </label>
-
-                    <label class="checkbox-card cursor-pointer group">
-                        <input type="checkbox" value="backup" class="hidden mod-item">
-                        <div class="border border-gray-600 rounded-xl p-3 flex flex-col items-center gap-2 transition bg-gray-900/50 group-hover:bg-gray-700">
-                            <span class="icon-box w-8 h-8 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center text-lg">💾</span>
-                            <span class="text-[10px] font-bold">النسخ الاحتياطي</span>
-                        </div>
-                    </label>
-                </div>
-            </div>
-
-            <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-900/50 transition transform active:scale-95 text-lg">
-                إنشاء كود التفعيل 🚀
-            </button>
-        </form>
-
-        <div id="resultArea" class="hidden mt-8 pt-6 border-t border-gray-700 animate-fade-in bg-black/30 p-4 rounded-xl">
-            <div class="flex justify-between items-center mb-2">
-                <p class="text-xs text-green-400 font-bold">✅ تم إنشاء المفتاح بنجاح</p>
-                <button onclick="copyToken()" class="bg-gray-700 hover:bg-gray-600 text-white text-[10px] px-3 py-1 rounded transition flex items-center gap-1">
-                    <span>نسخ</span>
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                </button>
-            </div>
-            <textarea id="finalToken" readonly rows="3" class="w-full bg-black/50 border border-green-500/30 rounded-lg p-3 text-[10px] text-gray-300 font-mono break-all resize-none focus:outline-none"></textarea>
+            <h1 class="text-2xl font-bold text-gray-800">مولد التراخيص</h1>
+            <p class="text-sm text-gray-500 font-medium mt-1">إصدار التراخيص للعملاء - ERPX PRO</p>
         </div>
 
+        <div class="p-8">
+            <form id="genForm" onsubmit="generateKey(event)" class="space-y-8">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700 flex items-center gap-2">
+                            <i class="fa-solid fa-fingerprint text-gray-400"></i>
+                            كود جهاز العميل (Machine ID)
+                        </label>
+                        <input type="text" id="machineId" required 
+                               class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition font-mono text-left font-semibold placeholder-gray-400" 
+                               placeholder="L650-M12-S999...">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700 flex items-center gap-2">
+                            <i class="fa-regular fa-calendar-days text-gray-400"></i>
+                            مدة الترخيص
+                        </label>
+                        <div class="relative">
+                            <select id="duration" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition appearance-none cursor-pointer font-semibold">
+                                <option value="30">تجريبي (شهر واحد)</option>
+                                <option value="90">3 شهور (ربع سنوي)</option>
+                                <option value="180">6 شهور (نصف سنوي)</option>
+                                <option value="365" selected>سنة كاملة (Standard)</option>
+                                <option value="730">سنتين (Long Term)</option>
+                                <option value="36500">نسخة دائمة (Lifetime)</option>
+                            </select>
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="h-px bg-gray-100"></div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="text-sm font-bold text-gray-800">التطبيقات والصلاحيات</label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition border border-gray-200">
+                            <input type="checkbox" id="mod_all" onchange="toggleAll(this)" class="w-4 h-4 rounded text-primary focus:ring-primary border-gray-300">
+                            <span class="text-xs font-bold text-gray-600">تحديد الكل</span>
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        
+                        <label class="cursor-pointer group relative">
+                            <input type="checkbox" value="sales" class="hidden module-checkbox mod-item">
+                            <div class="border border-gray-200 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all duration-200 hover:shadow-md hover:border-primary/50 bg-white h-full">
+                                <div class="absolute top-2 right-2 check-icon opacity-0 transition-all duration-200 transform scale-50 text-primary">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="icon-bg w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg transition-colors">
+                                    <i class="fa-solid fa-sack-dollar"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700 text-center">المبيعات</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer group relative">
+                            <input type="checkbox" value="pos" class="hidden module-checkbox mod-item">
+                            <div class="border border-gray-200 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all duration-200 hover:shadow-md hover:border-primary/50 bg-white h-full">
+                                <div class="absolute top-2 right-2 check-icon opacity-0 transition-all duration-200 transform scale-50 text-primary">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="icon-bg w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg transition-colors">
+                                    <i class="fa-solid fa-shop"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700 text-center">نقاط البيع</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer group relative">
+                            <input type="checkbox" value="inventory" class="hidden module-checkbox mod-item">
+                            <div class="border border-gray-200 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all duration-200 hover:shadow-md hover:border-primary/50 bg-white h-full">
+                                <div class="absolute top-2 right-2 check-icon opacity-0 transition-all duration-200 transform scale-50 text-primary">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="icon-bg w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-lg transition-colors">
+                                    <i class="fa-solid fa-boxes-stacked"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700 text-center">المخازن</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer group relative">
+                            <input type="checkbox" value="accounting" class="hidden module-checkbox mod-item">
+                            <div class="border border-gray-200 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all duration-200 hover:shadow-md hover:border-primary/50 bg-white h-full">
+                                <div class="absolute top-2 right-2 check-icon opacity-0 transition-all duration-200 transform scale-50 text-primary">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="icon-bg w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center text-lg transition-colors">
+                                    <i class="fa-solid fa-calculator"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700 text-center">الحسابات</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer group relative">
+                            <input type="checkbox" value="hr" class="hidden module-checkbox mod-item">
+                            <div class="border border-gray-200 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all duration-200 hover:shadow-md hover:border-primary/50 bg-white h-full">
+                                <div class="absolute top-2 right-2 check-icon opacity-0 transition-all duration-200 transform scale-50 text-primary">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="icon-bg w-10 h-10 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center text-lg transition-colors">
+                                    <i class="fa-solid fa-users"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700 text-center">الموارد البشرية</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer group relative">
+                            <input type="checkbox" value="manufacturing" class="hidden module-checkbox mod-item">
+                            <div class="border border-gray-200 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all duration-200 hover:shadow-md hover:border-primary/50 bg-white h-full">
+                                <div class="absolute top-2 right-2 check-icon opacity-0 transition-all duration-200 transform scale-50 text-primary">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="icon-bg w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center text-lg transition-colors">
+                                    <i class="fa-solid fa-industry"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700 text-center">التصنيع</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer group relative">
+                            <input type="checkbox" value="maintenance" class="hidden module-checkbox mod-item">
+                            <div class="border border-gray-200 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all duration-200 hover:shadow-md hover:border-primary/50 bg-white h-full">
+                                <div class="absolute top-2 right-2 check-icon opacity-0 transition-all duration-200 transform scale-50 text-primary">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="icon-bg w-10 h-10 rounded-xl bg-yellow-50 text-yellow-600 flex items-center justify-center text-lg transition-colors">
+                                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700 text-center">الصيانة</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer group relative">
+                            <input type="checkbox" value="serials" class="hidden module-checkbox mod-item">
+                            <div class="border border-gray-200 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all duration-200 hover:shadow-md hover:border-primary/50 bg-white h-full">
+                                <div class="absolute top-2 right-2 check-icon opacity-0 transition-all duration-200 transform scale-50 text-primary">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="icon-bg w-10 h-10 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center text-lg transition-colors">
+                                    <i class="fa-solid fa-barcode"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700 text-center">السيريالات</span>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer group relative">
+                            <input type="checkbox" value="backup" class="hidden module-checkbox mod-item">
+                            <div class="border border-gray-200 rounded-2xl p-4 flex flex-col items-center gap-3 transition-all duration-200 hover:shadow-md hover:border-primary/50 bg-white h-full">
+                                <div class="absolute top-2 right-2 check-icon opacity-0 transition-all duration-200 transform scale-50 text-primary">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="icon-bg w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-lg transition-colors">
+                                    <i class="fa-solid fa-database"></i>
+                                </div>
+                                <span class="text-xs font-bold text-gray-700 text-center">النسخ الاحتياطي</span>
+                            </div>
+                        </label>
+
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-primary hover:bg-[#5f4999] text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-3 text-lg">
+                    <i class="fa-solid fa-key"></i>
+                    إنشاء كود التفعيل
+                </button>
+            </form>
+
+            <div id="resultArea" class="hidden mt-8 pt-6 border-t border-gray-100 animate-fade-in">
+                <div class="bg-green-50 border border-green-200 rounded-2xl p-6 relative">
+                    <div class="flex items-center gap-2 mb-3 text-green-700">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <h3 class="text-sm font-bold">تم إنشاء المفتاح بنجاح</h3>
+                    </div>
+                    
+                    <textarea id="finalToken" readonly rows="3" class="w-full bg-white border border-green-200 rounded-xl p-4 text-xs text-gray-600 font-mono break-all resize-none focus:outline-none shadow-inner leading-relaxed"></textarea>
+                    
+                    <div class="mt-3 flex justify-end">
+                        <button onclick="copyToken()" class="bg-white hover:bg-green-600 hover:text-white text-green-700 border border-green-200 text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+                            <i class="fa-regular fa-copy"></i>
+                            نسخ الكود
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="fixed bottom-2 left-0 w-full text-center pointer-events-none">
+        <p class="text-[10px] text-gray-400 font-medium">ERPX-PRO License Generator v1.0</p>
     </div>
 
     <script>
-        // ⚠️ هذا المفتاح يجب أن يكون مطابقاً تماماً للموجود في server.js عند العميل
         const SECRET_KEY = "ANSARY_SUPER_SECURE_ERPX_KEY_2026_!@#"; 
 
         function toggleAll(source) {
@@ -174,48 +276,36 @@
             const machineId = document.getElementById('machineId').value.trim();
             if(!machineId) return alert('يرجى إدخال كود الجهاز!');
 
-            // 1. تجميع المديولات المختارة
             let modules = [];
             const checkboxes = document.querySelectorAll('.mod-item:checked');
             checkboxes.forEach(cb => {
                 modules.push(cb.value);
             });
 
-            // لو اختار كل البوكسات، ممكن نحط 'all' للاختصار، أو نسيبهم مفصلين (الأفضل مفصلين عشان لو حبيت تشيل حاجة مستقبلاً)
-            if(checkboxes.length === document.querySelectorAll('.mod-item').length) {
-                // modules = ['all']; // يمكنك تفعيل هذا السطر لو عايز الكود يبقى أقصر، بس التفصيل أأمن
-            }
-
             if(modules.length === 0 && !document.getElementById('mod_all').checked) {
                 return alert('⚠️ يجب اختيار تطبيق واحد على الأقل!');
             }
 
-            // 2. التاريخ
             const days = parseInt(document.getElementById('duration').value);
             const now = Math.floor(Date.now() / 1000);
             const expiry = now + (days * 24 * 60 * 60);
 
-            // 3. البيانات
             const payload = {
                 machineId: machineId,
-                modules: modules, // القائمة التي اخترتها
+                modules: modules,
                 type: 'pro',
                 iat: now,
                 exp: expiry
             };
 
-            // 4. التشفير
             const token = signJWT(payload, SECRET_KEY);
 
-            // 5. العرض
             document.getElementById('resultArea').classList.remove('hidden');
             document.getElementById('finalToken').value = token;
             
-            // Auto scroll to result
             document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // دوال التشفير المساعدة (Standard JWT Signing)
         function signJWT(payload, secret) {
             const header = { alg: "HS256", typ: "JWT" };
             const stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header));
@@ -240,7 +330,16 @@
             copyText.select();
             copyText.setSelectionRange(0, 99999); 
             navigator.clipboard.writeText(copyText.value);
-            alert("تم نسخ الكود! أرسله للعميل.");
+            
+            // تأثير بسيط عند النسخ
+            const btn = document.querySelector('button[onclick="copyToken()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> تم النسخ';
+            btn.classList.add('bg-green-600', 'text-white');
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-green-600', 'text-white');
+            }, 2000);
         }
     </script>
 </body>
